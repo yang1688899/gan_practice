@@ -93,7 +93,7 @@ gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
 
 batch_size = 128
 max_step = 10000
-mnist = input_data.read_data_sets('./mnist', one_hot=True)
+mnist = input_data.read_data_sets('../mnist', one_hot=True)
 logger = get_logger("./log/info.log")
 
 with tf.Session() as sess:
