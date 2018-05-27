@@ -1,2 +1,6 @@
 __pycache__
 .idea
+gan_mnist/out
+gan_mnist/log
+cgan_mnist/out
+cgan_mnist/log
