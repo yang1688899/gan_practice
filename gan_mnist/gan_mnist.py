@@ -4,6 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import logging
+import os
+
+if not os.path.exists('./log'):
+    os.mkdir('./log')
+if not os.path.exists('./out'):
+    os.mkdir('./out')
+
 
 def get_logger(filepath,level=logging.INFO):
     logger = logging.getLogger(__name__)
@@ -67,12 +74,14 @@ param_g = [g_w1, g_w2, g_b1, g_b2]
 def d_network(x):
     d1 = tf.nn.relu(tf.matmul(x,d_w1)+d_b1)
     d_out = tf.matmul(d1,d_w2)+d_b2
-    return d_out
+    # return d_out
+    return tf.nn.sigmoid(d_out)
 
 def g_network(x):
     g1 = tf.nn.relu(tf.matmul(x,g_w1)+g_b1)
     g_out = tf.matmul(g1,g_w2)+g_b2
-    return g_out
+    # return g_out
+    return tf.nn.sigmoid(g_out)
 
 x = tf.placeholder(tf.float32,shape=[None,784])
 z = tf.placeholder(tf.float32,shape=[None,100])
@@ -82,17 +91,20 @@ d_out = d_network(x)
 g_out = g_network(z)
 gan_out = d_network(g_out)
 
-d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=d_out,labels=tf.ones_like(d_out)))
-d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.zeros_like(gan_out)))
-d_loss = d_loss_fake+d_loss_real
+d_loss = -tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))
+gan_loss = -tf.reduce_mean(tf.log(gan_out))
 
-gan_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.ones_like(gan_out)))
+# d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=d_out,labels=tf.ones_like(d_out)))
+# d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.zeros_like(gan_out)))
+# d_loss = d_loss_fake+d_loss_real
+#
+# gan_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.ones_like(gan_out)))
 
 d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
 gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
 
-batch_size = 128
-max_step = 10000
+batch_size = 256
+max_step = 1000000
 mnist = input_data.read_data_sets('../mnist', one_hot=True)
 logger = get_logger("./log/info.log")
 
@@ -106,7 +118,7 @@ with tf.Session() as sess:
         _,gan_loss_train = sess.run([gan_optimizer, gan_loss],feed_dict={z:random_data(batch_size,100)})
 
 
-        if step % 1000 == 0:
+        if step % 100 == 0:
             samples = sess.run(g_out, feed_dict={z: random_data(16, 100)})
 
             fig = plot(samples)
@@ -116,10 +128,3 @@ with tf.Session() as sess:
 
             logger.info("step %s: d_loss is %s, gan_loss is %s"%(step,d_loss_train,gan_loss_train))
             print("step %s: d_loss is %s, gan_loss is %s"%(step,d_loss_train,gan_loss_train))
-
-
-
-
-
-
-

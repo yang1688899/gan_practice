@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import logging
 from tensorflow.examples.tutorials.mnist import input_data
+import os
+
+if not os.path.exists('./log'):
+    os.mkdir('./log')
+if not os.path.exists('./out'):
+    os.mkdir('./out')
 
 def get_logger(filepath,level=logging.INFO):
     logger = logging.getLogger(__name__)
