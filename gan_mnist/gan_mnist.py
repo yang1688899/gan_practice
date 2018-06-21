@@ -55,6 +55,7 @@ def bias_variable(shape, bais=0.1):
     initial = tf.constant(bais, shape=shape)
     return tf.Variable(initial)
 
+#鉴别网络weights
 d_w1 = weight_variable([784,128])
 d_b1 = bias_variable([128])
 
@@ -63,6 +64,7 @@ d_b2 = bias_variable([1])
 
 param_d = [d_w1, d_w2, d_b1, d_b2]
 
+#生成网络weights
 g_w1 = weight_variable([100,128])
 g_b1 = bias_variable([128])
 
@@ -71,16 +73,16 @@ g_b2 = bias_variable([784])
 
 param_g = [g_w1, g_w2, g_b1, g_b2]
 
+#鉴别网络
 def d_network(x):
     d1 = tf.nn.relu(tf.matmul(x,d_w1)+d_b1)
     d_out = tf.matmul(d1,d_w2)+d_b2
-    # return d_out
     return tf.nn.sigmoid(d_out)
 
+#生成网络
 def g_network(x):
     g1 = tf.nn.relu(tf.matmul(x,g_w1)+g_b1)
     g_out = tf.matmul(g1,g_w2)+g_b2
-    # return g_out
     return tf.nn.sigmoid(g_out)
 
 x = tf.placeholder(tf.float32,shape=[None,784])
@@ -93,12 +95,6 @@ gan_out = d_network(g_out)
 
 d_loss = -tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))
 gan_loss = -tf.reduce_mean(tf.log(gan_out))
-
-# d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=d_out,labels=tf.ones_like(d_out)))
-# d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.zeros_like(gan_out)))
-# d_loss = d_loss_fake+d_loss_real
-#
-# gan_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=gan_out,labels=tf.ones_like(gan_out)))
 
 d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
 gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
