@@ -4,7 +4,7 @@
 [image2]: ./rm_img/train_d.png
 [image3]: ./rm_img/train_g.png
 
-## **GANs 实现手写字母生成**
+## **GANs 实现手写数字生成**
 
 ### GANs简介:
 GANs全称 Generative Adversarial Nets(生成对抗网络)，于2014年由 Ian Goodfellow 提出。生成对抗网络分成两个部分：生成器(generator)和鉴别器(discriminator)。直观的说生成器(generator)和鉴别器(discriminator)的关系可以理解为造假的和打假的关系，生成器负责生成'假货'，而鉴别器负责'打假'，分辨哪些是'真货'(真实数据)哪些是生成器生成的'假货'。在训练过程中，生成器尽量生成与'真货'(真实数据)一样的'假货'，用来骗过鉴别器，鉴别器则尽可能分辨哪些是'真货'(真实数据)哪些是生成器生成的'假货'，生成器与鉴别器在这样的一轮轮类似于二人博弈的对抗中成长，最终两者达到一种动态均衡，生成器生成的'假货'以假乱真，与真货再无区别，鉴别器无法分辨。
@@ -19,6 +19,7 @@ GANs的整个网络结构是这样的：
 ![alt text][image1]
 
 (ps:图片网上找的，侵删)
+
 上图中的生成网络其实就是一个简单的神经网络，输入一串随机数，输出一张图片。而鉴别网络则是一个二元分类神经网络，输入一张图片，输出图片是来自真实数据集的概率。
 
 训练过程:
@@ -36,7 +37,7 @@ GANs的整个网络结构是这样的：
 (以上为一个GANs一个iteration的过程)
 
 ### 项目描述：
-利用mnist手写字母数据集，训练生成对抗网络(GANs)，实现手写字母生成
+利用mnist数据集，训练一个简单的无条件GANs，实现手写数字生成
 
 ### 实现步骤：
 * 设计生成网络，鉴别网络
@@ -79,7 +80,23 @@ def g_network(x):
 ```
 
 #### 设计损失函数
-论文中GANs的目标函数是这样的：minGmaxDV(D,G)=Ex∼pdata(x)[log(D(x))]+Ez∼pz(z)[log(1−D(G(z)))]
-minGmaxDV(D,G)=Ex∼pdata(x)[log(D(x))]+Ez∼pz(z)[log(1−D(G(z)))]
+先看代码：
+```
+x = tf.placeholder(tf.float32,shape=[None,784])
+z = tf.placeholder(tf.float32,shape=[None,100])
+
+d_out = d_network(x)
+
+g_out = g_network(z)
+gan_out = d_network(g_out)
+
+d_loss = -tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))
+gan_loss = -tf.reduce_mean(tf.log(gan_out))
+
+d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
+gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
+```
+x为输入的
+鉴别网络要使真实数据的输出d_out尽量为1，生成数据的输出gan_out尽量为0，因此需要最大化 tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))。生成网络要使生成数据的输出gan_out尽量为1，因此需要最大化tf.reduce_mean(tf.log(gan_out))。至于这里使用两者的负值，是因为tensorFlow只能最小化优化，最小化某个值的负值，既为最大化该值。
  
  
