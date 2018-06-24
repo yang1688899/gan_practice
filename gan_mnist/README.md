@@ -41,7 +41,7 @@ GANs的整个网络结构是这样的：
 
 ### 实现步骤：
 * 设计生成网络，鉴别网络
-* 设计损失函数
+* 设计损失函数，优化器
 
 #### 设计生成网络，鉴别网络
 生成网络，鉴别网络可以根据需要使用各种网络结构，如cnn，rnn等。这里因为数据相对简单，生成网络，鉴别网络都使用简单的三层神经网络即可。
@@ -78,25 +78,27 @@ def g_network(x):
     g_out = tf.matmul(g1,g_w2)+g_b2
     return tf.nn.sigmoid(g_out)
 ```
+其中鉴别网络的输入为786个值（对应28x28图片），输出为一个代表是否为真实数据概率的数值。生成网络输入为一百个随机数，输出为786个值（对应28x28图片）。
 
-#### 设计损失函数
+#### 设计损失函数，优化器
 先看代码：
 ```
 x = tf.placeholder(tf.float32,shape=[None,784])
 z = tf.placeholder(tf.float32,shape=[None,100])
 
-d_out = d_network(x)
+d_out_real = d_network(x)
 
 g_out = g_network(z)
-gan_out = d_network(g_out)
+d_out_fake = d_network(g_out)
 
-d_loss = -tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))
-gan_loss = -tf.reduce_mean(tf.log(gan_out))
+d_loss = -tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))
+g_loss = -tf.reduce_mean(tf.log(d_out_fake))
 
 d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
-gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
+g_optimizer = tf.train.AdamOptimizer().minimize(g_loss,var_list=param_g)
 ```
-x为输入的
-鉴别网络要使真实数据的输出d_out尽量为1，生成数据的输出gan_out尽量为0，因此需要最大化 tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))。生成网络要使生成数据的输出gan_out尽量为1，因此需要最大化tf.reduce_mean(tf.log(gan_out))。至于这里使用两者的负值，是因为tensorFlow只能最小化优化，最小化某个值的负值，既为最大化该值。
- 
+
+鉴别网络要使真实数据的输出d_out_real尽量为1，生成数据的输出d_out_fake尽量为0，因此需要最大化 tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))。生成网络要使鉴别网络对生成数据的输出d_out_fake尽量为1，因此需要最大化tf.reduce_mean(tf.log(d_out_fake))。至于这里使用两者的负值，是因为tensorFlow只能最小化优化，最小化某个值的负值，既为最大化该值。
+
+优化器都选用Adam，这里要注意的是优化鉴别网络时只更新鉴别网络的参数，优化生成网络时只更新生成网络的参数。
  
