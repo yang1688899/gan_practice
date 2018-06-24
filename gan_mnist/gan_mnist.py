@@ -85,19 +85,20 @@ def g_network(x):
     g_out = tf.matmul(g1,g_w2)+g_b2
     return tf.nn.sigmoid(g_out)
 
+
 x = tf.placeholder(tf.float32,shape=[None,784])
 z = tf.placeholder(tf.float32,shape=[None,100])
 
-d_out = d_network(x)
+d_out_real = d_network(x)
 
 g_out = g_network(z)
-gan_out = d_network(g_out)
+d_out_fake = d_network(g_out)
 
-d_loss = -tf.reduce_mean(tf.log(d_out) + tf.log(1. - gan_out))
-gan_loss = -tf.reduce_mean(tf.log(gan_out))
+d_loss = -tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))
+g_loss = -tf.reduce_mean(tf.log(d_out_fake))
 
 d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
-gan_optimizer = tf.train.AdamOptimizer().minimize(gan_loss,var_list=param_g)
+g_optimizer = tf.train.AdamOptimizer().minimize(g_loss,var_list=param_g)
 
 batch_size = 256
 max_step = 1000000
@@ -111,7 +112,7 @@ with tf.Session() as sess:
     for step in range(max_step):
         batch_real,_ = mnist.train.next_batch(batch_size)
         _,d_loss_train = sess.run([d_optimizer, d_loss],feed_dict={x:batch_real, z:random_data(batch_size,100)})
-        _,gan_loss_train = sess.run([gan_optimizer, gan_loss],feed_dict={z:random_data(batch_size,100)})
+        _,gan_loss_train = sess.run([g_optimizer, g_loss],feed_dict={z:random_data(batch_size,100)})
 
 
         if step % 100 == 0:
