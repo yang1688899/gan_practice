@@ -112,16 +112,16 @@ with tf.Session() as sess:
     for step in range(max_step):
         batch_real,_ = mnist.train.next_batch(batch_size)
         _,d_loss_train = sess.run([d_optimizer, d_loss],feed_dict={x:batch_real, z:random_data(batch_size,100)})
-        _,gan_loss_train = sess.run([g_optimizer, g_loss],feed_dict={z:random_data(batch_size,100)})
+        _,g_loss_train = sess.run([g_optimizer, g_loss],feed_dict={z:random_data(batch_size,100)})
 
 
-        if step % 100 == 0:
+        if step % 1000 == 0:
             samples = sess.run(g_out, feed_dict={z: random_data(16, 100)})
 
             fig = plot(samples)
-            plt.savefig('out/{}.png'.format(str(i).zfill(3)), bbox_inches='tight')
+            plt.savefig('out/{}.png'.format(str(i).zfill(4)), bbox_inches='tight')
             i += 1
             plt.close(fig)
 
-            logger.info("step %s: d_loss is %s, gan_loss is %s"%(step,d_loss_train,gan_loss_train))
-            print("step %s: d_loss is %s, gan_loss is %s"%(step,d_loss_train,gan_loss_train))
+            logger.info("step %s: d_loss is %s, gan_loss is %s"%(step,d_loss_train,g_loss_train))
+            print("step %s: d_loss is %s, g_loss is %s"%(step,d_loss_train,g_loss_train))
