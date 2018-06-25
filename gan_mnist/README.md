@@ -101,7 +101,7 @@ d_optimizer = tf.train.AdamOptimizer().minimize(d_loss,var_list=param_d)
 g_optimizer = tf.train.AdamOptimizer().minimize(g_loss,var_list=param_g)
 ```
 
-鉴别网络要使真实数据的输出d_out_real尽量为1，生成数据的输出d_out_fake尽量为0，因此需要最大化 tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))。生成网络要使鉴别网络对生成数据的输出d_out_fake尽量为1，因此需要最大化tf.reduce_mean(tf.log(d_out_fake))。至于这里使用两者的负值，是因为tensorFlow只能最小化优化。
+鉴别网络要使真实数据的输出d_out_real尽量为1，生成数据的输出d_out_fake尽量为0，因此需要最小化 -tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))。生成网络要使鉴别网络对生成数据的输出d_out_fake尽量为1，因此需要最小化tf.reduce_mean(tf.log(d_out_fake))。
 
 优化器都选用Adam，这里要注意的是优化鉴别网络时只更新鉴别网络的参数，优化生成网络时只更新生成网络的参数。
 
