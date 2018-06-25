@@ -123,7 +123,7 @@ with tf.Session() as sess:
         _,g_loss_train = sess.run([g_optimizer, g_loss],feed_dict={z:random_data(batch_size,100)})
 ```
 
-  最后得到的生成模型生成的图片：
+  最后得到的生成模型生成的一些图片：
   
   ![alt text][image4]
   
