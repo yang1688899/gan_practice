@@ -3,6 +3,8 @@
 [image1]: ./rm_img/graph.jpeg
 [image2]: ./rm_img/train_d.png
 [image3]: ./rm_img/train_g.png
+[image4]: ./rm_img/fake.png
+[image5]: ./rm_img/orgin.png
 
 ## **GANs 实现手写数字生成**
 
@@ -42,6 +44,7 @@ GANs的整个网络结构是这样的：
 ### 实现步骤：
 * 设计生成网络，鉴别网络
 * 设计损失函数，优化器
+* 训练模型
 
 #### 设计生成网络，鉴别网络
 生成网络，鉴别网络可以根据需要使用各种网络结构，如cnn，rnn等。这里因为数据相对简单，生成网络，鉴别网络都使用简单的三层神经网络即可。
@@ -101,4 +104,30 @@ g_optimizer = tf.train.AdamOptimizer().minimize(g_loss,var_list=param_g)
 鉴别网络要使真实数据的输出d_out_real尽量为1，生成数据的输出d_out_fake尽量为0，因此需要最大化 tf.reduce_mean(tf.log(d_out_real) + tf.log(1. - d_out_fake))。生成网络要使鉴别网络对生成数据的输出d_out_fake尽量为1，因此需要最大化tf.reduce_mean(tf.log(d_out_fake))。至于这里使用两者的负值，是因为tensorFlow只能最小化优化。
 
 优化器都选用Adam，这里要注意的是优化鉴别网络时只更新鉴别网络的参数，优化生成网络时只更新生成网络的参数。
+
+#### 训练模型
+最后是训练模型，batch_size为256，一共进行了50000个itration，每个iteration先训练一次鉴别网络，然后一次生成网络（这里也可以尝试其他的训练策略，比如一个iteration训练一次鉴别网络，然后两次生成网络）代码如下：
+```
+batch_size = 256
+max_step = 50000
+mnist = input_data.read_data_sets('../mnist', one_hot=True)
+logger = get_logger("./log/info.log")
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    print("training")
+    i=0
+    for step in range(max_step):
+        batch_real,_ = mnist.train.next_batch(batch_size)
+        _,d_loss_train = sess.run([d_optimizer, d_loss],feed_dict={x:batch_real, z:random_data(batch_size,100)})
+        _,g_loss_train = sess.run([g_optimizer, g_loss],feed_dict={z:random_data(batch_size,100)})
+```
+
+  最后得到的生成模型生成的图片：
+  
+  ![alt text][image4]
+  
+  这是真实数据集中随机抽取的几张图片：
+  
+  ![alt text][image5]
  
