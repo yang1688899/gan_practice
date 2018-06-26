@@ -6,12 +6,8 @@
 [image4]: ./rm_img/fake.png
 [image5]: ./rm_img/orgin.png
 
-## **GANs 理解及简单实现（手写数字生成）**
-
 ### *GANs简介*
-GANs全称 Generative Adversarial Nets(生成对抗网络)，于2014年由 Ian Goodfellow 提出。生成对抗网络分成两个部分：生成器(generator)和鉴别器(discriminator)。直观的说生成器(generator)和鉴别器(discriminator)的关系可以理解为造假的和打假的关系，生成器负责生成'假货'，而鉴别器负责'打假'，分辨哪些是'真货'(真实数据)哪些是生成器生成的'假货'。在训练过程中，生成器尽量生成与'真货'(真实数据)一样的'假货'，用来骗过鉴别器，鉴别器则尽可能分辨哪些是'真货'(真实数据)哪些是生成器生成的'假货'，生成器与鉴别器在这样的一轮轮类似于二人博弈的对抗中成长，最终两者达到一种动态均衡，生成器生成的'假货'以假乱真，与真货再无区别，鉴别器无法分辨。
-
-ps:通常生成器(generator)和鉴别器(discriminator)都是神经网络所以一般也称为生成网络(Generator Neural Network)和鉴别网络(Discriminator Neural Network)
+GANs全称 Generative Adversarial Nets(生成对抗网络)，于2014年由 Ian Goodfellow 提出。生成对抗网络分成两个部分：生成网络(Generator Neural Network)和鉴别网络(Discriminator Neural Network)。直观的说生成网络(Generator Neural Network)和鉴别网络(Discriminator Neural Network)的关系可以理解为造假的和打假的关系，生成网络负责生成'假货'，而鉴别网络负责'打假'，分辨哪些是'真货'(真实数据)哪些是生成网络生成的'假货'。在训练过程中，生成网络尽量生成与'真货'(真实数据)一样的'假货'，用来骗过鉴别网络，鉴别网络则尽可能分辨哪些是'真货'(真实数据)哪些是生成网络生成的'假货'，生成网络与鉴别网络在这样的一轮轮类似于二人博弈的对抗中成长，最终两者达到一种动态均衡，生成网络生成的'假货'以假乱真，与真货再无区别，鉴别网络无法分辨。
 
 详细请看[原论文](https://arxiv.org/abs/1406.2661)
 
